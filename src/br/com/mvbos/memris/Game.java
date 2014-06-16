@@ -180,7 +180,7 @@ public class Game extends javax.swing.JFrame {
 			if (ppy + 1 > 0) {
 				adicionaPecaNaGrade();
 				
-				marcarPonto();
+				marcarColuna();
 				
 				descerColunas();
 				
@@ -197,11 +197,11 @@ public class Game extends javax.swing.JFrame {
 		}
 	}
 
-	private void marcarPonto() {
+	private void marcarColuna() {
 		for (int j = gradeEspaco[0].length - 1; j > 0; j--) {
 			boolean linhaCompleta = true;
 			for (int i = gradeEspaco.length - 1; i > 0; i--) {
-				if (gradeEspaco[i][j] == LINHA_VAZIA) {
+				if (gradeEspaco[i][j] <= LINHA_VAZIA) {
 					linhaCompleta = false;
 					break;
 				}

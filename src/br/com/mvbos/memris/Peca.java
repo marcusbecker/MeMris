@@ -14,14 +14,23 @@ import java.awt.Color;
 public class Peca {
 
     public static Color[] Cores = {
-        Color.GREEN, Color.ORANGE
+        Color.GREEN, Color.ORANGE, Color.YELLOW, Color.CYAN
     };
     public static final int[][][] PECA = {
         {{0, 1, 0},
-        {1, 1, 0},
-        {0, 0, 0}},
+         {1, 1, 0},
+         {0, 0, 0}},
+        
         {{1, 0, 1},
-        {1, 0, 1},
-        {0, 1, 0}}
+         {0, 1, 0},
+         {0, 0, 0}},
+         
+        {{0, 1, 0},
+         {0, 1, 0},
+         {0, 1, 0}},
+          
+        {{0, 1, 0},
+         {0, 1, 0},
+         {1, 0, 0}}
     };
 }
