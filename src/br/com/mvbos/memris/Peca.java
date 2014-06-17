@@ -6,6 +6,7 @@
 package br.com.mvbos.memris;
 
 import java.awt.Color;
+import java.util.Random;
 
 /**
  *
@@ -14,23 +15,54 @@ import java.awt.Color;
 public class Peca {
 
     public static Color[] Cores = {
-        Color.GREEN, Color.ORANGE, Color.YELLOW, Color.CYAN
+        Color.GREEN, Color.ORANGE, Color.YELLOW, Color.CYAN, Color.BLUE, Color.MAGENTA
     };
-    public static final int[][][] PECA = {
-        {{0, 1, 0},
-         {1, 1, 0},
-         {0, 0, 0}},
-        
-        {{1, 0, 1},
-         {0, 1, 0},
-         {0, 0, 0}},
-         
-        {{0, 1, 0},
-         {0, 1, 0},
-         {0, 1, 0}},
-          
-        {{0, 1, 0},
-         {0, 1, 0},
-         {1, 0, 0}}
+
+    private static final int[][][] PECA = {
+        {
+            {0, 1, 0},
+            {1, 1, 0},
+            {0, 0, 0}},
+        {
+            {1, 0, 1},
+            {0, 1, 0},
+            {0, 0, 0}},
+        {
+            {0, 1, 0},
+            {0, 1, 0},
+            {0, 1, 0}},
+        {
+            {0, 1, 0},
+            {0, 1, 0},
+            {1, 0, 0}},
+        {
+            {0, 1, 0},
+            {0, 1, 0},
+            {0, 0, 1}}
     };
+
+    private int pecaId;
+    private final Random rand = new Random();
+
+    public int[][] gerarPeca() {
+        pecaId = 2;//rand.nextInt(Peca.PECA.length);
+
+        if (rand.nextInt(100) == 10) {
+            int[][] bug = new int[PECA.length][PECA.length];
+            for (int ln = 0; ln < bug.length; ln++) {
+                for (int col = 0; col < bug.length; col++) {
+                    bug[ln][col] = rand.nextInt(2);
+                }
+
+            }
+
+            return bug;
+        }
+
+        return PECA[pecaId];
+    }
+
+    public int getPecaId() {
+        return pecaId;
+    }
 }

@@ -11,313 +11,359 @@ import java.util.Random;
 import javax.swing.JPanel;
 
 /**
- * 
+ *
  * @author mbecker
  */
 public class Game extends javax.swing.JFrame {
 
-	/**
-	 * Creates new form Game
-	 */
-	private int[][] gradeEspaco = new int[14][15];
-	private int[][] p;// Peca em jogo
-	private Color c;
-	private int pecaSelIdx;
+    /**
+     * Creates new form Game
+     */
+    private final int[][] gradeEspaco = new int[14][16];
+    private int[][] p;// Peca em jogo
+    private Color c;
+    private int pecaSelIdx;
 
-	private Thread gameUpdate;
-	private boolean gameOn = false;
+    private Thread gameUpdate;
+    private Peca fabricaPeca = new Peca();
+    private boolean gameOn = false;
 
-	// Posicao peca x,y
-	int ppx;
-	int ppy;
+    // Posicao peca x,y
+    private int ppx;
+    private int ppy;
 
-	private final int LINHA_VAZIA = -1;
-	private final int LINHA_COMPLETA = -2;
+    //Level
+    private int lv = 1;
+    private int linhasFeistas = 0;
+    private int pontos = 0;
 
-	private JPanel criarGrade() {
+    private final int LINHA_VAZIA = -1;
+    private final int LINHA_COMPLETA = -2;
 
-		for (int i = 0; i < gradeEspaco.length; i++) {
-			for (int j = 0; j < gradeEspaco[i].length; j++) {
-				gradeEspaco[i][j] = LINHA_VAZIA;
-			}
-		}
-		
-		return new JPanel() {
-			@Override
-			public void paintComponent(Graphics g) {
-				// Tamanho do espaco para desenhar a grade
-				final int w = grade.getWidth();
-				final int h = grade.getHeight();
+    private JPanel criarGrade() {
 
-				// Largura do espado da peca na grade
-				final int pw = w / gradeEspaco.length;
-				// Altura do espado da peca na grade
-				final int ph = h / gradeEspaco[0].length;
-				// desenhar fundo
-				g.setColor(Color.BLACK);
-				g.fillRect(0, 0, w, h);
+        for (int i = 0; i < gradeEspaco.length; i++) {
+            for (int j = 0; j < gradeEspaco[i].length; j++) {
+                gradeEspaco[i][j] = LINHA_VAZIA;
+            }
+        }
 
-				// desenhar grade
-				for (int i = 0; i < gradeEspaco.length; i++) {
-					int[] linha = gradeEspaco[i];
-					for (int j = 0; j < linha.length; j++) {
-						
-						if (gradeEspaco[i][j] > LINHA_VAZIA) {
-							g.setColor(Peca.Cores[gradeEspaco[i][j]]);
-							g.fillRect(i * pw, j * ph, pw, ph);
-						}
-					}
-				}
-      
-				// desenhar pecas
-				if (p == null) {
-					return;
-				}
-				
-				g.setColor(c);
-				for (int i = 0; i < p.length; i++) {
-					int[] l = p[i];
-					for (int j = 0; j < l.length; j++) {
-						if (p[i][j] != 0) {
-							g.fillRect((i + ppx) * pw + 2, (j + ppy) * ph + 2, pw - 2, ph - 2);
-						}
-					}
-				}
-			}
-		};
-	}
+        return new JPanel() {
+            @Override
+            public void paintComponent(Graphics g) {
+                // Tamanho do espaco para desenhar a grade
+                final int w = grade.getWidth();
+                final int h = grade.getHeight();
 
-	/**
-	 * Movimento x
-	 * 
-	 * @param peca
-	 * @param mx
-	 * @return
-	 */
-	public boolean validaMovimento(int[][] peca, int mx) {
-		for (int i = 0; i < peca.length; i++) {
-			for (int j = 0; j < peca[i].length; j++) {
-				if (peca[i][j] != 0) {
-					int prxPX = i + mx; // Proxima posicao peca x
+                // Largura do espado da peca na grade
+                final int pw = w / gradeEspaco.length;
+                // Altura do espado da peca na grade
+                final int ph = h / gradeEspaco[0].length;
+                // desenhar fundo
+                g.setColor(Color.BLACK);
+                g.fillRect(0, 0, w, h);
 
-					if (prxPX < 0 || prxPX > gradeEspaco.length - 1) {
-						return false;
-					}
-				}
-			}
-		}
+                // desenhar grade
+                for (int i = 0; i < gradeEspaco.length; i++) {
+                    int[] linha = gradeEspaco[i];
+                    for (int j = 0; j < linha.length; j++) {
 
-		return true;
-	}
+                        if (gradeEspaco[i][j] > LINHA_VAZIA) {
+                            g.setColor(Peca.Cores[gradeEspaco[i][j]]);
+                            g.fillRect(i * pw, j * ph, pw, ph);
+                        }
 
-	public boolean colidiu(int[][] peca, int mx, int my) {
-		for (int i = 0; i < peca.length; i++) {
-			for (int j = 0; j < peca[i].length; j++) {
-				if (peca[i][j] != 0) {
-					int prxPX = i + mx;
-					int prxPY = j + my;
+                        if (gradeEspaco[i][j] == LINHA_COMPLETA) {
+                            g.setColor(Color.RED);
+                            g.fillRect(i * pw, j * ph, pw, ph);
+                        }
+                    }
+                }
 
-					if (prxPY < 0) {
-						return false;
-					}
+                // desenhar pecas
+                if (p == null) {
+                    return;
+                }
 
-					if (prxPY > gradeEspaco[0].length - 1) {
-						return true;
-					}
+                g.setColor(c);
+                for (int i = 0; i < p.length; i++) {
+                    int[] l = p[i];
+                    for (int j = 0; j < l.length; j++) {
+                        if (p[i][j] != 0) {
+                            g.fillRect((i + ppx) * pw + 2, (j + ppy) * ph + 2, pw - 2, ph - 2);
+                        }
+                    }
+                }
+            }
+        };
+    }
 
-					if (prxPX < 0 || prxPX == gradeEspaco.length) {
-						continue;
-					}
+    /**
+     * Movimento x
+     *
+     * @param peca
+     * @param mx
+     * @return
+     */
+    public boolean validaMovimento(int[][] peca, int mx) {
+        for (int i = 0; i < peca.length; i++) {
+            for (int j = 0; j < peca[i].length; j++) {
+                if (peca[i][j] != 0) {
+                    int prxPX = i + mx; // Proxima posicao peca x
 
-					if (gradeEspaco[prxPX][prxPY] > LINHA_VAZIA) {
-						return true;
-					}
-				}
-			}
-		}
+                    if (prxPX < 0 || prxPX > gradeEspaco.length - 1) {
+                        return false;
+                    }
+                }
+            }
+        }
 
-		return false;
-	}
+        return true;
+    }
 
-	public Game() {
-		initComponents();
-		gameUpdate = new Thread() {
-			long tempo;
+    /**
+     * Detectar colisao
+     *
+     * @param peca
+     * @param mx
+     * @param my
+     * @return
+     */
+    public boolean colidiu(int[][] peca, int mx, int my) {
+        for (int i = 0; i < peca.length; i++) {
+            for (int j = 0; j < peca[i].length; j++) {
+                if (peca[i][j] != 0) {
+                    int prxPX = i + mx;
+                    int prxPY = j + my;
 
-			@Override
-			public void run() {
-				tempo = System.currentTimeMillis();
-				while (true) {
-					long atual = System.currentTimeMillis();
-					// FPS
-					if (atual - tempo > 20) {
-						grade.repaint();
-					}
+                    if (prxPY < 0) {
+                        return false;
+                    }
 
-					// UPS
-					if (atual - tempo > 500) {
-						atualizarJogo();
-						tempo = System.currentTimeMillis();
-					}
-				}
-			}
-		};
-	}
+                    if (prxPY > gradeEspaco[0].length - 1) {
+                        return true;
+                    }
 
-	public void iniciarJogo() {
-		adicionaNovaPeca();
-		gameUpdate.start();
-		gameOn = true;
-	}
+                    if (prxPX < 0 || prxPX == gradeEspaco.length) {
+                        continue;
+                    }
 
-	private void atualizarJogo() {
-		if (!gameOn) {
-			return;
-		}
+                    if (gradeEspaco[prxPX][prxPY] > LINHA_VAZIA) {
+                        return true;
+                    }
+                }
+            }
+        }
 
-		if (colidiu(p, ppx, ppy + 1)) {
-			//Se a peca apareceu na grade
-			if (ppy + 1 > 0) {
-				adicionaPecaNaGrade();
-				
-				marcarColuna();
-				
-				descerColunas();
-				
-				adicionaNovaPeca();
-				
-			} else {
-				// game over
-				gameOn = false;
-				log("game over");
-			}
-		} else {
-			//Nao colidiu, continua descendo
-			ppy++;
-		}
-	}
+        return false;
+    }
 
-	private void marcarColuna() {
-		for (int j = gradeEspaco[0].length - 1; j > 0; j--) {
-			boolean linhaCompleta = true;
-			for (int i = gradeEspaco.length - 1; i > 0; i--) {
-				if (gradeEspaco[i][j] <= LINHA_VAZIA) {
-					linhaCompleta = false;
-					break;
-				}
-			}
+    public Game() {
+        initComponents();
+        gameUpdate = new Thread() {
+            private long ups;
+            private long fps;
 
-			if (linhaCompleta) {
-				for (int[] coluna : gradeEspaco) {
-					coluna[j] = LINHA_COMPLETA;
-				}
-			}
-		}
-	}
+            @Override
+            public void run() {
+                ups = System.currentTimeMillis();
+                fps = ups;
+                while (true) {
+                    long atual = System.currentTimeMillis();
+                    // FPS
+                    if (atual - fps > 20) {
+                        grade.repaint();
+                        fps = System.currentTimeMillis();
+                    }
 
-	private void descerColunas() {
-		for (int col = 0; col < gradeEspaco.length; col++) {
-			for (int i = gradeEspaco[col].length - 1; i > 0; i--) {
-				
-				if (gradeEspaco[col][i] == LINHA_COMPLETA) {
-					for (int j = i; j > 0; j--) {
-						gradeEspaco[col][j] = gradeEspaco[col][j - 1];
-					}
-					
-					gradeEspaco[col][0] = LINHA_VAZIA;
-				}
-			}
-		}
-	}
+                    // UPS
+                    int t = 500 - (lv * 100 / 2);
+                    if (atual - ups > t) {
+                        atualizarJogo();
+                        ups = System.currentTimeMillis();
+                    }
+                }
+            }
+        };
+    }
 
-	private int[][] virarPeca(boolean esquerda) {
-		int x, y, vx, vy;
-		int[][] temp = new int[p.length][p[0].length];
-		int size = p.length;
-		for (x = 0, vx = size - 1; x < size; x++, vx--) {
-			for (y = size - 1, vy = 0; y >= 0; y--, vy++) {
-				if (esquerda) {
-					temp[vy][x] = p[x][y];
-				} else {
-					temp[vx][vy] = p[y][vx];
-				}
-			}
-		}
-		return temp;
-	}
+    public void iniciarJogo() {
+        adicionaNovaPeca();
+        gameUpdate.start();
+        gameOn = true;
+    }
 
-	/*
-	 * private int[][] copiarPeca(int[][] p) { int[][] temp = new
-	 * int[p.length][p[0].length]; for (int i = 0; i < p.length; i++) { for (int
-	 * j = 0; j < p[i].length; j++) { temp[i][j] = p[i][j]; } }
-	 * 
-	 * return temp; }
-	 */
-	private void adicionaPecaNaGrade() {
-		
-		for (int i = 0; i < p.length; i++) {
-			for (int j = 0; j < p[i].length; j++) {
+    private void atualizarJogo() {
+        if (!gameOn) {
+            return;
+        }
 
-				if (p[i][j] != 0) {
-					gradeEspaco[i + ppx][j + ppy] = pecaSelIdx;
-				}
-			}
-		}
-	}
+        if (colidiu(p, ppx, ppy + 1)) {
+            //Se a peca apareceu na grade
+            if (ppy + 1 > 0) {
+                adicionaPecaNaGrade();
 
-	private Random rand = new Random();
+                marcarColuna();
 
-	private void adicionaNovaPeca() {
-		ppy = -2;
-		ppx = gradeEspaco.length / 2 - 1;
-		int r = rand.nextInt(Peca.PECA.length);
-		p = Peca.PECA[r];
-		c = Peca.Cores[r];
-		pecaSelIdx = r;
-	}
+                descerColunas();
 
-	private void movePeca(int evt) {
-		if (!gameOn) {
-			return;
-		}
-		/*
-		 * 38 cima | 40 baixo | 37 esq | 39 dir
-		 */
-		// Proximo movimento x,y
-		int pmx = ppx;
-		int pmy = ppy;
-		int[][] prev = p;
-		// System.out.println(ppx + "x" + ppy);
-		switch (evt) {
-		case 38:
-			prev = virarPeca(true);
-			break;
-		case 40:
-			pmy++;
-			break;
-		case 37:
-			pmx--;
-			break;
-		case 39:
-			pmx++;
-			break;
-		}
+                adicionaNovaPeca();
 
-		if (!colidiu(prev, pmx, pmy) && validaMovimento(prev, pmx)) {
-			ppx = pmx;
-			ppy = pmy;
-			p = prev;
-		}
+            } else {
+                // game over
+                gameOn = false;
+                log("game over");
+            }
+        } else {
+            //Nao colidiu, continua descendo
+            ppy++;
+        }
+    }
 
-	}
+    private void marcarColuna() {
+        int multPontos = 0;
+        for (int j = gradeEspaco[0].length - 1; j > 0; j--) {
+            boolean linhaCompleta = true;
+            for (int i = gradeEspaco.length - 1; i > 0; i--) {
+                if (gradeEspaco[i][j] <= LINHA_VAZIA) {
+                    linhaCompleta = false;
+                    break;
+                }
+            }
 
-	// private void
-	/**
-	 * This method is called from within the constructor to initialize the form.
-	 * WARNING: Do NOT modify this code. The content of this method is always
-	 * regenerated by the Form Editor.
-	 */
-	@SuppressWarnings("unchecked")
+            if (linhaCompleta) {
+                multPontos++;
+                for (int[] coluna : gradeEspaco) {
+                    coluna[j] = LINHA_COMPLETA;
+                }
+            }
+        }
+
+        pontos += lv * (multPontos * multPontos);
+        linhasFeistas += multPontos;
+        log("pontos ", pontos);
+
+        if (lv == 9 && linhasFeistas == 10) {
+            gameOn = false;
+            log("Win!");
+            
+        } else if (linhasFeistas == 10) {
+            lv++;
+            linhasFeistas = 0;
+            log("Level", lv);
+        }
+    }
+
+    private void descerColunas() {
+        for (int col = 0; col < gradeEspaco.length; col++) {
+            for (int ln = gradeEspaco[col].length - 1; ln >= 0; ln--) {
+                if (gradeEspaco[col][ln] == LINHA_COMPLETA) {
+                    int mvPara = ln;
+                    int prx = ln - 1;
+                    for (int j = ln; j > 0; j--) {
+                        if (gradeEspaco[col][prx] == LINHA_COMPLETA) {
+                            prx--;
+                            continue;
+                        }
+
+                        gradeEspaco[col][mvPara] = gradeEspaco[col][prx];
+                        mvPara--;
+                        prx--;
+                    }
+                    //gradeEspaco[col][0] = LINHA_VAZIA;
+                }
+            }
+        }
+    }
+
+    private void imprimirGrade() {
+        for (int i = 0; i < gradeEspaco.length; i++) {
+            int[] linha = gradeEspaco[i];
+            for (int j = 0; j < linha.length; j++) {
+
+                log(i + "x" + j, gradeEspaco[i][j]);
+            }
+        }
+    }
+
+    private int[][] virarPeca(boolean esquerda) {
+        int x, y, vx, vy;
+        int[][] temp = new int[p.length][p[0].length];
+        int size = p.length;
+        for (x = 0, vx = size - 1; x < size; x++, vx--) {
+            for (y = size - 1, vy = 0; y >= 0; y--, vy++) {
+                if (esquerda) {
+                    temp[vy][x] = p[x][y];
+                } else {
+                    temp[vx][vy] = p[y][vx];
+                }
+            }
+        }
+        return temp;
+    }
+
+    private void adicionaPecaNaGrade() {
+
+        for (int i = 0; i < p.length; i++) {
+            for (int j = 0; j < p[i].length; j++) {
+
+                if (p[i][j] != 0) {
+                    gradeEspaco[i + ppx][j + ppy] = pecaSelIdx;
+                }
+            }
+        }
+    }
+
+    private void adicionaNovaPeca() {
+        ppy = -2;
+        ppx = gradeEspaco.length / 2 - 1;
+        p = fabricaPeca.gerarPeca();
+        c = Peca.Cores[fabricaPeca.getPecaId()];
+        pecaSelIdx = fabricaPeca.getPecaId();
+    }
+
+    private void movePeca(int evt) {
+        if (!gameOn) {
+            return;
+        }
+        /*
+         * 38 cima | 40 baixo | 37 esq | 39 dir
+         */
+        // Proximo movimento x,y
+        int pmx = ppx;
+        int pmy = ppy;
+        int[][] prev = p;
+        // System.out.println(ppx + "x" + ppy);
+        switch (evt) {
+            case 38:
+                prev = virarPeca(true);
+                break;
+            case 40:
+                pmy++;
+                break;
+            case 37:
+                pmx--;
+                break;
+            case 39:
+                pmx++;
+                break;
+        }
+
+        if (!colidiu(prev, pmx, pmy) && validaMovimento(prev, pmx)) {
+            ppx = pmx;
+            ppy = pmy;
+            p = prev;
+        }
+
+    }
+
+    // private void
+    /**
+     * This method is called from within the constructor to initialize the form.
+     * WARNING: Do NOT modify this code. The content of this method is always
+     * regenerated by the Form Editor.
+     */
+    @SuppressWarnings("unchecked")
 	// <editor-fold defaultstate="collapsed"
 	// desc="Generated Code">//GEN-BEGIN:initComponents
 	private void initComponents() {
@@ -366,27 +412,26 @@ public class Game extends javax.swing.JFrame {
 		pack();
 	}// </editor-fold>//GEN-END:initComponents
 
-	private void formKeyReleased(java.awt.event.KeyEvent evt) {// GEN-FIRST:event_formKeyReleased
-		// movePeca(evt.getKeyCode());
-	}// GEN-LAST:event_formKeyReleased
+    private void formKeyReleased(java.awt.event.KeyEvent evt) {// GEN-FIRST:event_formKeyReleased
+        // movePeca(evt.getKeyCode());
+    }// GEN-LAST:event_formKeyReleased
 
-	private void formKeyPressed(java.awt.event.KeyEvent evt) {// GEN-FIRST:event_formKeyPressed
-		movePeca(evt.getKeyCode());
-	}// GEN-LAST:event_formKeyPressed
+    private void formKeyPressed(java.awt.event.KeyEvent evt) {// GEN-FIRST:event_formKeyPressed
+        movePeca(evt.getKeyCode());
+    }// GEN-LAST:event_formKeyPressed
 
 	// Variables declaration - do not modify//GEN-BEGIN:variables
 	private javax.swing.JPanel grade;
 	private javax.swing.JPanel jPanel1;
 
 	// End of variables declaration//GEN-END:variables
+    private void log(String str, int... param) {
+        System.out.print(str);
+        for (int p : param) {
+            System.out.print(" " + p);
+        }
 
-	private void log(String str, int... param) {
-		System.out.print(str);
-		for (int p : param) {
-			System.out.print(" " + p);
-		}
-
-		System.out.println();
-	}
+        System.out.println();
+    }
 
 }
