@@ -45,13 +45,19 @@ public class Peca {
     private final Random rand = new Random();
 
     public int[][] gerarPeca() {
-        pecaId = 2;//rand.nextInt(Peca.PECA.length);
+        pecaId = rand.nextInt(Peca.PECA.length);
 
         if (rand.nextInt(100) == 10) {
             int[][] bug = new int[PECA.length][PECA.length];
+            int cont = 0;
             for (int ln = 0; ln < bug.length; ln++) {
                 for (int col = 0; col < bug.length; col++) {
-                    bug[ln][col] = rand.nextInt(2);
+                    int t = rand.nextInt(2);
+                    bug[ln][col] = t;
+                    cont += t;
+                    if (cont >= 5) {
+                        break;
+                    }
                 }
 
             }

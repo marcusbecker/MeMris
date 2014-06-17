@@ -26,7 +26,11 @@ public class Game extends javax.swing.JFrame {
 
     private Thread gameUpdate;
     private Peca fabricaPeca = new Peca();
-    private boolean gameOn = false;
+    private int estado;
+    private static final int PAUSADO = 1;
+    private static final int GANHO = 2;
+    private static final int PERDIDO = -1;
+    private static final int NAOPAUSADO = 0;
 
     // Posicao peca x,y
     private int ppx;
@@ -81,19 +85,29 @@ public class Game extends javax.swing.JFrame {
                 }
 
                 // desenhar pecas
-                if (p == null) {
-                    return;
-                }
-
-                g.setColor(c);
-                for (int i = 0; i < p.length; i++) {
-                    int[] l = p[i];
-                    for (int j = 0; j < l.length; j++) {
-                        if (p[i][j] != 0) {
-                            g.fillRect((i + ppx) * pw + 2, (j + ppy) * ph + 2, pw - 2, ph - 2);
+                if (p != null) {
+                    g.setColor(c);
+                    for (int i = 0; i < p.length; i++) {
+                        int[] l = p[i];
+                        for (int j = 0; j < l.length; j++) {
+                            if (p[i][j] != 0) {
+                                g.fillRect((i + ppx) * pw + 2, (j + ppy) * ph + 2, pw - 2, ph - 2);
+                            }
                         }
                     }
                 }
+                g.setColor(Color.WHITE);
+                g.drawString("Level " + lv, 5, 10);
+                g.drawString("Pontos " + (pontos * 100), w - 80, 10);
+
+                if (estado == PAUSADO) {
+                    g.drawString("-_-_- Pausa -_-_-", w / 2 - 40, h / 2);
+                } else if (estado == GANHO) {
+                    g.drawString("-_-_- Ganhou! -_-_-", w / 2 - 40, h / 2);
+                } else if (estado == PERDIDO) {
+                    g.drawString("-_-_- Perdeu! -_-_-", w / 2 - 40, h / 2);
+                }
+
             }
         };
     }
@@ -190,11 +204,11 @@ public class Game extends javax.swing.JFrame {
     public void iniciarJogo() {
         adicionaNovaPeca();
         gameUpdate.start();
-        gameOn = true;
+        estado = NAOPAUSADO;
     }
 
     private void atualizarJogo() {
-        if (!gameOn) {
+        if (estado != NAOPAUSADO) {
             return;
         }
 
@@ -211,8 +225,8 @@ public class Game extends javax.swing.JFrame {
 
             } else {
                 // game over
-                gameOn = false;
-                log("game over");
+                estado = PERDIDO;
+                //log("game over");
             }
         } else {
             //Nao colidiu, continua descendo
@@ -241,16 +255,16 @@ public class Game extends javax.swing.JFrame {
 
         pontos += lv * (multPontos * multPontos);
         linhasFeistas += multPontos;
-        log("pontos ", pontos);
+        //log("pontos ", pontos);
 
         if (lv == 9 && linhasFeistas == 10) {
-            gameOn = false;
-            log("Win!");
-            
+            estado = GANHO;
+            //log("Win!");
+
         } else if (linhasFeistas == 10) {
             lv++;
             linhasFeistas = 0;
-            log("Level", lv);
+            //log("Level", lv);
         }
     }
 
@@ -323,9 +337,11 @@ public class Game extends javax.swing.JFrame {
     }
 
     private void movePeca(int evt) {
-        if (!gameOn) {
+
+        if (estado != NAOPAUSADO && estado != PAUSADO) {
             return;
         }
+
         /*
          * 38 cima | 40 baixo | 37 esq | 39 dir
          */
@@ -347,6 +363,12 @@ public class Game extends javax.swing.JFrame {
             case 39:
                 pmx++;
                 break;
+            default:
+                estado = estado == PAUSADO ? NAOPAUSADO : PAUSADO;
+        }
+
+        if (estado == PAUSADO) {
+            return;
         }
 
         if (!colidiu(prev, pmx, pmy) && validaMovimento(prev, pmx)) {
