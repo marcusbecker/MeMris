@@ -15,7 +15,7 @@ import java.util.Random;
 public class Peca {
 
     public static Color[] Cores = {
-        Color.GREEN, Color.ORANGE, Color.YELLOW, Color.CYAN, Color.BLUE, Color.MAGENTA
+        Color.GREEN, Color.ORANGE, Color.YELLOW, Color.CYAN, Color.BLUE, Color.MAGENTA, Color.WHITE
     };
 
     private static final int[][][] PECA = {
@@ -38,7 +38,11 @@ public class Peca {
         {
             {0, 1, 0},
             {0, 1, 0},
-            {0, 0, 1}}
+            {0, 0, 1}},
+        {
+            {0, 0, 0},
+            {0, 1, 0},
+            {0, 0, 0}}
     };
 
     private int pecaId;

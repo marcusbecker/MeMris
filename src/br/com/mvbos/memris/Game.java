@@ -7,7 +7,6 @@ package br.com.mvbos.memris;
 
 import java.awt.Color;
 import java.awt.Graphics;
-import java.util.Random;
 import javax.swing.JPanel;
 
 /**
@@ -19,7 +18,7 @@ public class Game extends javax.swing.JFrame {
     /**
      * Creates new form Game
      */
-    private final int[][] gradeEspaco = new int[14][16];
+    private final int[][] gradeEspaco = new int[10][12];
     private int[][] p;// Peca em jogo
     private Color c;
     private int pecaSelIdx;
@@ -175,15 +174,15 @@ public class Game extends javax.swing.JFrame {
     public Game() {
         initComponents();
         gameUpdate = new Thread() {
-            private long ups;
-            private long fps;
-
+            private long ups, fps, atual;
+            
             @Override
             public void run() {
                 ups = System.currentTimeMillis();
                 fps = ups;
+                atual = ups;
+                
                 while (true) {
-                    long atual = System.currentTimeMillis();
                     // FPS
                     if (atual - fps > 20) {
                         grade.repaint();
@@ -196,6 +195,8 @@ public class Game extends javax.swing.JFrame {
                         atualizarJogo();
                         ups = System.currentTimeMillis();
                     }
+                    
+                    atual = System.currentTimeMillis();
                 }
             }
         };
@@ -236,9 +237,9 @@ public class Game extends javax.swing.JFrame {
 
     private void marcarColuna() {
         int multPontos = 0;
-        for (int j = gradeEspaco[0].length - 1; j > 0; j--) {
+        for (int j = gradeEspaco[0].length - 1; j >= 0; j--) {
             boolean linhaCompleta = true;
-            for (int i = gradeEspaco.length - 1; i > 0; i--) {
+            for (int i = gradeEspaco.length - 1; i >= 0; i--) {
                 if (gradeEspaco[i][j] <= LINHA_VAZIA) {
                     linhaCompleta = false;
                     break;
@@ -247,8 +248,9 @@ public class Game extends javax.swing.JFrame {
 
             if (linhaCompleta) {
                 multPontos++;
-                for (int[] coluna : gradeEspaco) {
-                    coluna[j] = LINHA_COMPLETA;
+                //for (int[] coluna : gradeEspaco) {
+                for (int i = gradeEspaco.length - 1; i >= 0; i--) {
+                    gradeEspaco[i][j] = LINHA_COMPLETA;
                 }
             }
         }
@@ -284,7 +286,7 @@ public class Game extends javax.swing.JFrame {
                         mvPara--;
                         prx--;
                     }
-                    //gradeEspaco[col][0] = LINHA_VAZIA;
+                    gradeEspaco[col][0] = LINHA_VAZIA;
                 }
             }
         }
