@@ -21,6 +21,14 @@ var imgEsp;
 //
 var pEsp; // peca especial
 
+//sound
+
+var audWin = new Audio("sound/15-act-cleared.mp3");
+var audLose = new Audio("sound/14-game-over.mp3");
+var audClearLine = new Audio("sound/Sonic.Ring.mp3");
+var audClearLineStrik = new Audio("sound/sonic.strike.mp3");
+
+
 function paintComponent(){
 	// Tamanho do espaco para desenhar a grade
 	var w = grade.width;
@@ -161,6 +169,7 @@ function atualizarJogo() {
 		} else {
 			// game over
 			estado = PERDIDO;
+			audLose.play();
 			//console.log("game over");
 		}
 	} else {
@@ -239,6 +248,14 @@ function marcarColuna() {
 			}
 		}
 	}
+	
+	if(multPontos > 0){
+		if(multPontos < 3){
+			audClearLine.play();
+		}else{
+			audClearLineStrik.play();
+		}
+	}
 
 	pontos += lv * (multPontos * multPontos);
 	linhasFeistas += multPontos;
@@ -246,6 +263,7 @@ function marcarColuna() {
 
 	if (lv == 9 && linhasFeistas == PROX_LEVEL) {
 		estado = GANHO;
+		audWin.play();
 		//console.log("Win!");
 
 	} else if (linhasFeistas == PROX_LEVEL) {
