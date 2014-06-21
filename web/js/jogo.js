@@ -47,21 +47,21 @@ function paintComponent(){
 		linha = gradeEspaco[i];
 		for (var j = 0; j < linha.length; j++) {
 
-			if (gradeEspaco[i][j] > LINHA_VAZIA) {
+			if (gradeEspaco[i][j] == LINHA_COMPLETA) {
+				g.fillStyle = "#f00";
+				g.fillRect(i * pw, j * ph, pw, ph);
+				
+			}else if (gradeEspaco[i][j] > LINHA_VAZIA) {
 				g.fillStyle = COR[gradeEspaco[i][j]];
 				g.fillRect(i * pw, j * ph, pw, ph);
 			}
 
-			if (gradeEspaco[i][j] == LINHA_COMPLETA) {
-				g.fillStyle = "#f00";
-				g.fillRect(i * pw, j * ph, pw, ph);
-			}
+
 		}
 	}
 
 	if (p != undefined) {
-	
-	
+		
 		if (pp != undefined) {
 			temp = PECA[pp];
 			g.fillStyle = "#fff";
@@ -149,21 +149,24 @@ function movePeca(evt) {
 	}
 
 }//movePeca	
-
+var animar = false;
 function atualizarJogo() {
 	if (estado != NAOPAUSADO) {
 		return;
+	}
+	
+	if(animar){
+		descerColunas();
+		animar = false;
 	}
 	
 	if (colidiu(p, ppx, ppy + 1)) {
 		//Se a peca apareceu na grade
 		if (ppy + 1 > 0) {
 			adicionaPecaNaGrade();
-
-			marcarColuna();
-
-			descerColunas();
-
+			
+			animar = marcarColuna();
+			
 			adicionaNovaPeca();
 
 		} else {
@@ -271,6 +274,8 @@ function marcarColuna() {
 		linhasFeistas = 0;
 		console.log("Level", lv);
 	}
+	
+	return multPontos > 0;
 }//marcarColuna
 
 function descerColunas() {
