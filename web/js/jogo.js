@@ -1,5 +1,6 @@
 var gradeEspaco;
 var p;// atalho para peca em jogo
+var pp; // Prox peca
 var pecaSelIdx = 0;
 var estado;
 // Posicao peca x,y
@@ -15,6 +16,10 @@ var grade;
 var g;
 
 var imgFundo;
+var imgEsp;
+
+//
+var pEsp; // peca especial
 
 function paintComponent(){
 	// Tamanho do espaco para desenhar a grade
@@ -40,19 +45,37 @@ function paintComponent(){
 			}
 
 			if (gradeEspaco[i][j] == LINHA_COMPLETA) {
-				g.fillStyle = "#FF0000";
+				g.fillStyle = "#f00";
 				g.fillRect(i * pw, j * ph, pw, ph);
 			}
 		}
 	}
 
 	if (p != undefined) {
-		g.fillStyle = COR[pecaSelIdx];
+	
+	
+		if (pp != undefined) {
+			temp = PECA[pp];
+			g.fillStyle = "#fff";
+			for (var i = 0; i < temp.length; i++) {
+				l = temp[i];
+				for (var j = 0; j < l.length; j++) {
+					if (temp[i][j] != 0) {
+						g.fillRect(i * 10 + w - 30, j * 10 + 30, 10, 10);
+					}
+				}
+			}
+		}		
+	
+		g.fillStyle = pEsp ? "#adbc0a" : COR[pecaSelIdx];
 		for (var i = 0; i < p.length; i++) {
 			l = p[i];
 			for (var j = 0; j < l.length; j++) {
 				if (p[i][j] != 0) {
 					g.fillRect((i + ppx) * pw + 2, (j + ppy) * ph + 2, pw - 2, ph - 2);
+					if(pEsp){
+						g.drawImage(imgEsp, (i + ppx) * pw, (j + ppy) * ph + 5);
+					}
 				}
 			}
 		}
@@ -63,6 +86,9 @@ function paintComponent(){
 	g.fillText("Level " + lv, 5, 20);
 	g.fillText("Pontos " + (pontos * 100), w - 140, 20);
 	
+	g.fillStyle = "#94c400";
+	g.fillText("Tetris Especial 99Vidas", 80, 20);
+
 	if (estado == PAUSADO) {
 		g.fillText("-_-_- Pausa -_-_-", w / 2 - 85, h / 2);
 	} else if (estado == GANHO) {
@@ -70,9 +96,6 @@ function paintComponent(){
 	} else if (estado == PERDIDO) {
 		g.fillText("-_-_- Perdeu! -_-_-", w / 2 - 85, h / 2);
 	}
-	
-	g.fillStyle = "#94c400";
-	g.fillText("Tetris Especial 99Vidas", 80, 20);	
 	
 }//paint
 
@@ -147,6 +170,11 @@ function atualizarJogo() {
 }//atualizarJogo	
 
 function virarPeca(esquerda) {
+
+	if(pecaSelIdx == 5){
+		pEsp = !pEsp;
+	}
+
 	var x, y, vx, vy;
 	var temp = [[],[],[]];
 	
@@ -182,7 +210,7 @@ function colidiu(peca, mx, my) {
 					continue;
 				}
 
-				if (gradeEspaco[prxPX][prxPY] > LINHA_VAZIA) {
+				if (!pEsp && gradeEspaco[prxPX][prxPY] > LINHA_VAZIA) {
 					return true;
 				}
 			}
@@ -216,11 +244,11 @@ function marcarColuna() {
 	linhasFeistas += multPontos;
 	//console.log("pontos ", pontos);
 
-	if (lv == 9 && linhasFeistas == 7) {
+	if (lv == 9 && linhasFeistas == PROX_LEVEL) {
 		estado = GANHO;
 		//console.log("Win!");
 
-	} else if (linhasFeistas == 7) {
+	} else if (linhasFeistas == PROX_LEVEL) {
 		lv++;
 		linhasFeistas = 0;
 		console.log("Level", lv);
@@ -268,13 +296,23 @@ function validaMovimento(peca, mx) {
 function adicionaNovaPeca() {
 	ppy = -2;
 	ppx = parseInt(gradeEspaco.length / 2 - 1);
+	
+	if(pp == undefined){
+		pp = Math.floor((Math.random() * PECA.length));
+		
+	}	
+	
+	p = PECA[pp];
+	pecaSelIdx = pp;
+	pEsp = false;
+	
 	random = Math.floor((Math.random() * PECA.length));
 	if(random == pecaSelIdx){
 		//Peca repetida, tentar novamente
 		random = Math.floor((Math.random() * PECA.length));
 	}
-	p = PECA[random];//fabricaPeca.gerarPeca();
-	pecaSelIdx = random;
+	pp = random;
+	
 }//adicionaNovaPeca
 
 function adicionaPecaNaGrade() {
@@ -296,6 +334,7 @@ function iniciarJogo(canvas) {
 	g = grade.getContext("2d");
 	
 	imgFundo = document.getElementById("img_fundo");
+	imgEsp = document.getElementById("peca_esp");
 
 	gradeEspaco = [];
 	var gradeLinhas = 12;
