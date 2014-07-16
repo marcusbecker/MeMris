@@ -2,7 +2,7 @@ build
 nbproject
 test
 build.xml
-web\sound\
+web/sound/
 # Windows image file caches
 Thumbs.db
 ehthumbs.db
